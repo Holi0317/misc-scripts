@@ -41,3 +41,12 @@ ffmpeg -i input.mkv -itsoffset -0.2 \
   -c copy \
   output.mkv
 ```
+
+## Extract subtitle
+Given:
+ - Subtitle is soft-coded
+ - Want to extract 1st (index = 0) subtitle
+
+```bash
+ffmpeg -i input.mkv -map 0:s:0 -c copy subs.ass
+```
