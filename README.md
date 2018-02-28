@@ -21,3 +21,6 @@ write to given file from command line.
 
 ## ffmpeg.md
 I am terrible at ffmpeg. This is a notes / snippet for me to convert media files.
+
+## commands.md
+Some useful commands
