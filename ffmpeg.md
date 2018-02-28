@@ -28,3 +28,16 @@ ffmpeg -i input.mkv -i input.ass \
   -codec copy \
   output.mkv
 ```
+
+## Set subtitle offset
+Given:
+ - Subtitle is soft-coded
+ - Want to offset by -0.2 second
+
+```bash
+ffmpeg -i input.mkv -itsoffset -0.2 \
+  -i input.mkv \
+  -map 0:v -map 0:a -map 1:s \
+  -c copy \
+  output.mkv
+```
