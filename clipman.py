@@ -58,6 +58,7 @@ def append_file(filepath: str, content: str) -> None:
     logger.info('Appending to file: %s, "%s"', filepath, content)
     with open(filepath, 'a') as file:
         file.write(content)
+        file.write('\n')
 
 
 def main() -> None:
