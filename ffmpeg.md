@@ -10,7 +10,11 @@ Note: Only 1st video stream and 1st audio stream will preserve in output.
 Others will be destroyed in convert process.
 
 ```bash
-ffmpeg -i vid.mkv -i vid.ass -metadata:s:s:0 language=chi -codec copy output.mkv
+ffmpeg -i vid.mkv \
+  -i vid.ass \
+  -metadata:s:s:0 language=chi \
+  -codec copy \
+  output.mkv
 ```
 
 ## Add subtitle, select specific audio stream
@@ -22,7 +26,8 @@ Output:
 Japanese audio, Chinese subtitle with video
 
 ```bash
-ffmpeg -i input.mkv -i input.ass \
+ffmpeg -i input.mkv \
+  -i input.ass \
   -map 0:a:language:jpn -map 0:v -map 1:s \
   -metadata:s:s:0 language=chi \
   -codec copy \
@@ -35,8 +40,8 @@ Given:
  - Want to offset by -0.2 second
 
 ```bash
-ffmpeg -i input.mkv -itsoffset -0.2 \
-  -i input.mkv \
+ffmpeg -i input.mkv \
+  -itsoffset -0.2 -i input.mkv \
   -map 0:v -map 0:a -map 1:s \
   -c copy \
   output.mkv
@@ -48,5 +53,8 @@ Given:
  - Want to extract 1st (index = 0) subtitle
 
 ```bash
-ffmpeg -i input.mkv -map 0:s:0 -c copy subs.ass
+ffmpeg -i input.mkv \
+  -map 0:s:0 \
+  -c copy \
+  subs.ass
 ```
