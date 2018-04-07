@@ -7,9 +7,9 @@ Usage: split.py <FILE> [CFG] [DEST]
     CFG - Configuration file path. Default: `config`
     DEST - Destination directory. Default: `export/`
 
-Config file format:
+Configuration file format:
     Use new line to separate video segments.
-    On each line, exected tokens are:
+    On each line, expected tokens are:
 
     <START_TIME> <END_TIME> [PREFIX]
 
@@ -18,6 +18,8 @@ Config file format:
     (Larger unit could be omitted if they are 00)
 
     Prefix token is optional.
+
+    Empty line would be skipped. But comment is not supported.
 
     Output file name would be:
     {prefix}{original-filename}{0-based-index}
@@ -34,7 +36,7 @@ Config = List[Tuple[datetime.time, datetime.time, str]]
 
 def parse_time(t: str) -> datetime.time:
     """
-    Parse timestamp into time object.
+    Parse timestamps into time object.
 
     Expected format is HH:MM:SS or MM:SS or SS.
     If the segment starts with 0, for example, 01, the 0 could
@@ -92,7 +94,7 @@ def parse_cfg(cfg: str) -> Config:
     """
     Parse configuration file.
 
-    Arguments:
+    Args:
         cfg - Content of configuration file
     """
     res = []
@@ -118,7 +120,7 @@ def get_dest_name(src: str, i: int, dest: str, prefix: str) -> str:
     """
     Format for destination file filename.
 
-    Param:
+    Args:
         src - Source filename
         i - Index of current file
         dest - Destination directory
@@ -133,7 +135,7 @@ def get_dest_name(src: str, i: int, dest: str, prefix: str) -> str:
 
 def consutruct_commands(src: str, cfg: Config, dest: str) -> List[List[str]]:
     """
-    Construct ffmpeg commands for convertion.
+    Construct ffmpeg commands for conversion.
 
     Arguments:
         src - Path point to source video file
@@ -191,4 +193,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
