@@ -19,7 +19,7 @@ From given files from command line, sort them and try to rename.
 Use monitor output of `xclip -o` command. When the output of clipboard changed,
 write to given file from command line.
 
-## split.py
+## ffsplit.py
 use ffmpeg to split a given video into multiple segments.
 
 See the module docstring for usage.
