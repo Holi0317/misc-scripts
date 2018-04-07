@@ -170,7 +170,12 @@ def main():
     args = iter(sys.argv)
     next(args)  # First argument is script path
 
-    src = next(args)
+    try:
+        src = next(args)
+    except StopIteration:
+        print('Required argument <config> is not given', file=sys.stderr)
+        sys.exit(1)
+
     conf_path = next(args, 'config')
     dest = next(args, 'export')
 
