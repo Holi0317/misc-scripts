@@ -20,9 +20,14 @@ Use monitor output of `xclip -o` command. When the output of clipboard changed,
 write to given file from command line.
 
 ## ffsplit.py
-use ffmpeg to split a given video into multiple segments.
+Use ffmpeg to split a given video into multiple segments.
 
-See the module docstring for usage.
+See the script docstring for usage.
+
+## ffcut.py
+Use ffmpeg to split and concatenate video.
+
+See the script docstring for usage.
 
 ## ffmpeg.md
 I am terrible at ffmpeg. This is a notes / snippet for me to convert media files.
