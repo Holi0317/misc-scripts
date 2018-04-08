@@ -2,6 +2,8 @@
 """
 Cut multiple segments of one video and combine into one file.
 
+Requires ffmpeg and ffprobe commands in system to work.
+
 Usage: ffcut <FILE> [CONFIG] [OUTPUT]
     FILE - Source file. Required argument.
     CONFIG - Configuration file path. Default: `config`
@@ -20,13 +22,14 @@ Configuration file format:
     Empty line would be skipped. But comment is not supported.
 
 Remarks:
-    This tool assume existance of nvenc (Nvidia GPU) for hardware-accelrated
-    encoding. Moreover, the ffmpeg default encoding parameter is used.
+    This tool assume existence of nvenc (Nvidia GPU) for hardware-accelrated
+    encoding.
     To change this behavior, edit return array from `parse_cfg` function.
 """
 import os
 import subprocess
 import sys
+import json
 from typing import List
 
 
@@ -66,9 +69,11 @@ def parse_cfg(src: str, cfgpath: str, dest: str) -> List[str]:
     output = os.path.join(dest, filename)
     name, _ = os.path.splitext(output)
 
+    bitrate = get_bitrate(src) - 128000
+
     return [
         'ffmpeg', '-i', src, '-filter_complex', ''.join(filterarg), '-map',
-        '[out]', '-c:v', 'h264_nvenc', name + '.mp4'
+        '[out]', '-c:v', 'h264_nvenc', '-b:v', str(bitrate), name + '.mp4'
     ]
 
 
@@ -102,6 +107,23 @@ def parse_time(t: str) -> int:
     m = int(segment[1])
     s = int(segment[2])
     return h * 3600 + m * 60 + s
+
+
+def get_bitrate(video: str) -> int:
+    """
+    Interpret given video bitrate using `ffprobe`.
+
+    Note: The returned value is an approximation, rounded down bitrate
+    of video.
+    """
+    cmd = [
+        'ffprobe', '-v', 'quiet', '-print_format', 'json', '-show_format',
+        video
+    ]
+    process = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
+    res = json.loads(process.stdout.decode())
+    bitrate = res['format']['bit_rate']
+    return int(bitrate)
 
 
 def main() -> None:
