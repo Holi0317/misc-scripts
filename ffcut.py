@@ -26,54 +26,75 @@ Remarks:
     encoding.
     To change this behavior, edit return array from `parse_cfg` function.
 """
+import json
 import os
 import subprocess
 import sys
-import json
-from typing import List
+from typing import List, Tuple
+
+Config = List[Tuple[int, int]]
 
 
-def parse_cfg(src: str, cfgpath: str, dest: str) -> List[str]:
+def parse_cfg(cfgpath: str) -> Config:
     """
-    Parse configuration file and generate ffmpeg command for instruction.
+    Parse configuration file.
 
     Args:
-        src - Source video file path
         cfgpath - Configuration file path
-        dest - Output directory
+
+    Returns:
+        List of segments. Each item is a tuple of (start_time, end_time)
     """
-    filterarg: List[str] = []
+    res = []
 
     with open(cfgpath) as file:
-        iterator = enumerate(filter(lambda x: x.strip() != '', file))
-        for (i, row) in iterator:
+        iterator = filter(lambda x: x.strip() != '', file)
+        for row in iterator:
             splitted = row.split(' ')
             assert len(splitted) == 2, 'A video segment is malformed'
 
             start = parse_time(splitted[0])
             end = parse_time(splitted[1])
-            filterarg += [
-                f"[0:v]trim={start}:{end},setpts=PTS-STARTPTS[v{i}];",
-                f"[0:a]atrim={start}:{end},asetpts=PTS-STARTPTS[a{i}];"
-            ]
 
-    if len(filterarg) == 0:
-        print('Received empty configuration file. Aborting', file=sys.stderr)
-        sys.exit(1)
+            assert end > start, 'One segment has smaller end time'
+            'than start time!'
 
-    count = round(len(filterarg) / 2)
+            res.append((start, end))
+
+    return res
+
+
+def build_filter(cfg: Config) -> str:
+    """Construct ffmpeg filter using given config."""
+    res = []
+
+    for (i, segment) in enumerate(cfg):
+        (start, end) = segment
+        res += [
+            f"[0:v]trim={start}:{end},setpts=PTS-STARTPTS[v{i}];",
+            f"[0:a]atrim={start}:{end},asetpts=PTS-STARTPTS[a{i}];"
+        ]
+
+    count = round(len(res) / 2)
     streams_id = ''.join([f'[v{i}][a{i}]' for i in range(count)])
-    filterarg.append(f'{streams_id}concat=n={count}:v=1:a=1[out]')
+    res.append(f'{streams_id}concat=n={count}:v=1:a=1[out]')
+
+    return ''.join(res)
+
+
+def build_cmd(src: str, cfg: Config, dest: str) -> List[str]:
+    """Construct ffmpeg command for conversion."""
+    filterarg = build_filter(cfg)
+    bitrate = get_bitrate(src) - 128000
 
     filename = os.path.split(src)[-1]
     output = os.path.join(dest, filename)
     name, _ = os.path.splitext(output)
 
-    bitrate = get_bitrate(src) - 128000
-
     return [
         'ffmpeg', '-i', src, '-filter_complex', ''.join(filterarg), '-map',
-        '[out]', '-c:v', 'h264_nvenc', '-b:v', str(bitrate), name + '.mp4'
+        '[out]', '-c:v', 'h264_nvenc', '-b:v',
+        str(bitrate), name + '.mp4'
     ]
 
 
@@ -140,7 +161,13 @@ def main() -> None:
     conf_path = next(args, 'config')
     dest = next(args, 'export')
 
-    cmd = parse_cfg(src, conf_path, dest)
+    cfg = parse_cfg(conf_path)
+
+    if len(cfg) == 0:
+        print('Received empty configuration file. Aborting', file=sys.stderr)
+        sys.exit(1)
+
+    cmd = build_cmd(src, cfg, dest)
 
     print('Going to execute the following commands:\n{}'.format(' '.join(cmd)))
 
