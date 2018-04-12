@@ -34,3 +34,9 @@ I am terrible at ffmpeg. This is a notes / snippet for me to convert media files
 
 ## commands.md
 Some useful commands
+
+## aria2-resume.py
+Resume all error download in aria2. See script docstring for usage.
+
+## aria2-sort.py
+Sort downloads in aria2. See script docstring for usage.
