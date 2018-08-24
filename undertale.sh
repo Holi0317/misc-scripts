@@ -24,6 +24,11 @@ echo "Starting undertale"
 
 # Step 3: Commit and push
 cd $git_location
+if [ -z "$(git status --short)" ]; then
+  echo "Save file is not updated. Exiting"
+  exit 0
+fi
+
 echo "Committing and pushing latest save file"
 git add .
 git commit -m "Save starting from $start_time"
