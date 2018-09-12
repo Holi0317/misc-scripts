@@ -32,7 +32,7 @@ fi
 echo "Committing and pushing latest save file"
 git add .
 git commit -m "Save starting from $start_time"
-git push origin master
+git push
 
 # Reset working directory
 cd $origin
