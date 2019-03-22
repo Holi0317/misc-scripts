@@ -58,3 +58,16 @@ ffmpeg -i input.mkv \
   -c copy \
   subs.ass
 ```
+
+## Convert for whatsapp
+Whatsapp video needs some special encoding before uploading
+
+```bash
+ffmpeg -i origin.gif \
+  -c:v libx264 -profile:v baseline -level 3.0\
+  -pix_fmt yuv420p \
+  out.mp4
+```
+
+In case of fail conversion and error message is about video width and height is not divisible
+by 2, add `-s dimension` (replace dimension with width and height) after input file.
